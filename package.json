@@ -10,6 +10,7 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
-    "axios": "^0.17.1"
+    "axios": "^0.17.1",
+    "eventemitter3": "^3.0.0"
   }
 }
