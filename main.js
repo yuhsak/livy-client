@@ -10,7 +10,7 @@ class Client extends EventEmitter {
 		this.protocol = protocol
 		this.host = host
 		this.port = port
-		this.autoupdate = true
+		this.autoupdate = autoupdate
 		this.updateInterval = updateInterval
 		this.agent = agent || Axios.create({
 			baseURL: `${this.protocol}://${this.host}:${this.port}`,
@@ -75,17 +75,18 @@ class Client extends EventEmitter {
 	}
 
 	async update() {
-		this.path && this.info().then(this.updateState.bind(this))
+		// console.log(this.constructor)
+		this.path && this.status({auto: true}).then(this.updateState.bind(this))
 		this.autoupdate && sleep(this.updateInterval).then(this.update.bind(this))
 		return this
 	}
 
-	async info() {
+	async status() {
 		return {}
 	}
 
 	cleanup() {
-		this.autoupdate = false
+		this.stopUpdate()
 		this.removeAllListeners()
 	}
 
@@ -103,12 +104,16 @@ class LivyClient extends Client {
 		this.on('requestError', e=>this.emit('error', e))
 	}
 
-	async info() {
-		return this.sessions()
+	async status({auto}={}) {
+		return this.sessions({auto})
 	}
 
-	async sessions({from=0, size=20}={}) {
-		return this.get(`/sessions?from=${from}&size=${size}`).then(r=>r.sessions.map(this.session.bind(this)))
+	async sessions({from=0, size=20, auto=false}={}) {
+		return this.get(`/sessions?from=${from}&size=${size}`).then(r=>{
+			// this.clearSessions()
+			return r.sessions.map(s=>this.session(s, {autoupdate: !auto}))
+			// return this._sessions
+		})
 	}
 
 	async createSession({
@@ -126,15 +131,21 @@ class LivyClient extends Client {
 		queue,
 		name,
 		conf,
-		heartbeatTimeoutInSecond
+		heartbeatTimeoutInSecond,
+		autoupdate
 	}={}) {
 		const data = {kind, proxyUser, jars, pyFiles, files, driverMemory, driverCores, executorMemory, executorCores, numExecutors, archives, queue, name, conf, heartbeatTimeoutInSecond}
 		const res = await this.post(`/sessions`, data)
-		return this.session(res.id)
+		return this.session(res, {autoupdate})
 	}
 
-	session(s, {autoupdate=false}) {
+	session(s, {autoupdate=true}={}) {
 		return new Session(s, {protocol: this.protocol, host: this.host, port: this.port, ua: this.ua, autoupdate})
+	}
+
+	clearSessions() {
+		this._sessions.forEach(s=>s.cleanup())
+		this._sessions = []
 	}
 
 }
@@ -157,6 +168,7 @@ class Session extends Client {
 			{value: 'success',			done: true}
 		]
 		this.on('update', this.onUpdate.bind(this))
+		this.on('requestError', this.onRequestError.bind(this))
 	}
 
 	onUpdate(o) {
@@ -173,7 +185,7 @@ class Session extends Client {
 		this.emit('update', this.o)
 	}
 
-	async info() {
+	async status() {
 		return this.get(this.path)
 	}
 
@@ -190,24 +202,24 @@ class Session extends Client {
 	}
 
 	async statements() {
-		return this.get(`${this.path}/statements`).then(r=>r.statements)
+		return this.get(`${this.path}/statements`).then(r=>r.statements.map(s=>this.statement(s, {autoupdate: false})))
 	}
 
 	async run(code) {
 		const res = await this.post(`${this.path}/statements`, {code})
-		return this.statement(res.id)
+		return this.statement(res)
 	}
 
-	statement(s, {autoupdate=false}) {
-		return new Statement(s, this.id, {protocol: this.protocol, host: this.host, port: this.port, ua: this.ua, autoupdate})
+	statement(s, {autoupdate=true}={}) {
+		return new Statement(s, this.o, {protocol: this.protocol, host: this.host, port: this.port, ua: this.ua, autoupdate})
 	}
 
 }
 
 class Statement extends Session {
 
-	constructor(s, ...args) {
-		super(...args)
+	constructor(s, session, ...args) {
+		super(session, ...args)
 		this.sessionId = this.id
 		this.id = s.id
 		this.o = s
@@ -215,9 +227,9 @@ class Statement extends Session {
 		this.states = [
 			{value: 'waiting',		done: false},
 			{value: 'running',		done: false},
-			{value: 'available',	done: false},
+			{value: 'available',	done: true},
 			{value: 'error',		done: true},
-			{value: 'cancelling',	done: true},
+			{value: 'cancelling',	done: false},
 			{value: 'cancelled',	done: true}
 		]
 	}
