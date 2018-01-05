@@ -1,16 +1,27 @@
 {
   "name": "livy-client",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.4",
+  "description": "Simple REST clien for Apache Livy",
   "main": "main.js",
   "scripts": {
     "start": "node main.js"
   },
   "author": "Yuhsak Inoue",
   "license": "MIT",
-  "devDependencies": {},
   "dependencies": {
     "axios": "^0.17.1",
     "eventemitter3": "^3.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yuhsak/livy-client.git"
+  },
+  "keywords": [
+    "Spark",
+    "Livy"
+  ],
+  "bugs": {
+    "url": "https://github.com/Yuhsak/livy-client/issues"
+  },
+  "homepage": "https://github.com/Yuhsak/livy-client#readme"
 }
