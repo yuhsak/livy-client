@@ -27,22 +27,25 @@ class Client extends EventEmitter {
 		return res => res.status > 400 ? reject(res) : resolve(res.data)
 	}
 
+	requestError(resolve, reject) {
+		return e => {
+			const res = e.response || {}
+			const data = Object.assign(
+				res.status == 404 ? {code: 'resourceNotExist'} :
+				res.status == 500 ? {code: 'serverError'} :
+				!res.status ? {code: 'connectionError'} :
+			{}, {status: res.status, statusText: res.statusText, headers: res.headers, config: res.config})
+			this.emit('requestError', data)
+			resolve(data)
+		}
+	}
+
 	async request(method='get', path, data) {
 		const opt = Object.assign({
 			method,
 			url: path
 		}, data?{data}:{})
-		return new Promise((resolve, reject)=> this.agent.request(opt).then(this.validateResponse(resolve, reject)).catch(this.requestError.bind(this)))
-	}
-
-	requestError(e) {
-		const res = e.response || {}
-		const data = Object.assign(
-			res.status == 404 ? {code: 'resourceNotExist'} :
-			res.status == 500 ? {code: 'serverError'} :
-			!res.status ? {code: 'connectionError'} :
-		{}, {status: res.status, statusText: res.statusText, headers: res.headers, config: res.config})
-		this.emit('requestError', data)
+		return new Promise((resolve, reject)=> this.agent.request(opt).then(this.validateResponse(resolve, reject)).catch(this.requestError(resolve, reject)))
 	}
 
 	async get(path) {
