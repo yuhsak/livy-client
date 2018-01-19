@@ -5,7 +5,7 @@ const sleep = (ms) => new Promise(resolve=>setTimeout(resolve,ms))
 
 class Client extends EventEmitter {
 
-	constructor({protocol='http', host='localhost', port=8998, ua='Livy Client for Node.js', autoupdate=true, updateInterval=1000, agent}={}) {
+	constructor({protocol='http', host='localhost', port=8998, ua, autoupdate=true, updateInterval=1000, agent}={}) {
 		super()
 		this.protocol = protocol
 		this.host = host
@@ -14,17 +14,27 @@ class Client extends EventEmitter {
 		this.updateInterval = updateInterval
 		this.agent = agent || Axios.create({
 			baseURL: `${this.protocol}://${this.host}:${this.port}`,
-			headers: {
-				'UserAgent': ua
-			},
-			responseType: 'json'
+			headers: Object.assign({}, ua && {
+				'User-Agent': ua
+			}),
+			responseType: 'json',
+			timeout: 10*1000
 		})
 		this.o = {}
-		this.autoupdate && this.startUpdate()
+		this.autoupdate && this.update()
 	}
 
 	validateResponse(resolve, reject) {
-		return res => res.status > 400 ? reject(res) : resolve(res.data)
+		// return res => {
+		// 	if (res.status > 400){
+		// 		console.log(res.data)
+		// 	}
+		// 	if(!res.data){
+		// 		console.log(res.status)
+		// 	}
+		// 	res.status > 400 ? reject(res) : resolve(res.data)
+		// }
+		return res => res.status > 400 ? reject(res) : resolve(res.data||{})
 	}
 
 	requestError(resolve, reject) {
@@ -67,8 +77,10 @@ class Client extends EventEmitter {
 	}
 
 	startUpdate() {
-		this.autoupdate = true
-		this.update()
+		if(!this.autoupdate){
+			this.autoupdate = true
+			this.update()
+		}
 		return this
 	}
 
@@ -78,7 +90,6 @@ class Client extends EventEmitter {
 	}
 
 	async update() {
-		// console.log(this.constructor)
 		this.path && this.status({auto: true}).then(this.updateState.bind(this))
 		this.autoupdate && sleep(this.updateInterval).then(this.update.bind(this))
 		return this
@@ -114,7 +125,11 @@ class LivyClient extends Client {
 	async sessions({from=0, size=20, auto=false}={}) {
 		return this.get(`/sessions?from=${from}&size=${size}`).then(r=>{
 			// this.clearSessions()
-			return r.sessions.map(s=>this.session(s, {autoupdate: !auto}))
+			try {
+				return r.sessions ? r.sessions.map(s=>this.session(s, {autoupdate: !auto})) : r
+			} catch(e) {
+				console.error(r)
+			}
 			// return this._sessions
 		})
 	}
@@ -205,7 +220,7 @@ class Session extends Client {
 	}
 
 	async statements() {
-		return this.get(`${this.path}/statements`).then(r=>r.statements.map(s=>this.statement(s, {autoupdate: false})))
+		return this.get(`${this.path}/statements`).then(r=>r.statements ? r.statements.map(s=>this.statement(s, {autoupdate: false})) : r)
 	}
 
 	async run(code) {
