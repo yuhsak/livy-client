@@ -181,6 +181,7 @@ class Session extends Client {
 			{value: 'idle',				done: false},
 			{value: 'busy',				done: false},
 			{value: 'shutting_down',	done: false},
+			{value: 'recovering',		done: false},
 			{value: 'error',			done: true},
 			{value: 'dead',				done: true},
 			{value: 'success',			done: true}
@@ -223,9 +224,9 @@ class Session extends Client {
 		return this.get(`${this.path}/statements`).then(r=>r.statements ? r.statements.map(s=>this.statement(s, {autoupdate: false})) : r)
 	}
 
-	async run(code) {
+	async run(code, {autoupdate=true}={}) {
 		const res = await this.post(`${this.path}/statements`, {code})
-		return this.statement(res)
+		return this.statement(res, {autoupdate})
 	}
 
 	statement(s, {autoupdate=true}={}) {
