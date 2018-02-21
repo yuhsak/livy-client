@@ -122,7 +122,7 @@ class LivyClient extends Client {
 		return this.sessions({auto})
 	}
 
-	async sessions({from=0, size=20, auto=false}={}) {
+	async sessions({from=0, size=100, auto=false}={}) {
 		return this.get(`/sessions?from=${from}&size=${size}`).then(r=>{
 			// this.clearSessions()
 			try {
