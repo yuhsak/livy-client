@@ -5,7 +5,7 @@ const sleep = (ms) => new Promise(resolve=>setTimeout(resolve,ms))
 
 class Client extends EventEmitter {
 
-	constructor({protocol='http', host='localhost', port=8998, ua, autoupdate=true, updateInterval=1000, agent}={}) {
+	constructor({protocol='http', host='localhost', port=8998, ua, autoupdate=false, updateInterval=1000, agent}={}) {
 		super()
 		this.protocol = protocol
 		this.host = host
@@ -126,7 +126,7 @@ class LivyClient extends Client {
 		return this.get(`/sessions?from=${from}&size=${size}`).then(r=>{
 			// this.clearSessions()
 			try {
-				return r.sessions ? r.sessions.map(s=>this.session(s, {autoupdate: !auto})) : r
+				return r.sessions ? r.sessions.map(s=>this.session(s, {autoupdate: auto})) : r
 			} catch(e) {
 				console.error(r)
 			}
@@ -157,7 +157,7 @@ class LivyClient extends Client {
 		return this.session(res, {autoupdate})
 	}
 
-	session(s, {autoupdate=true}={}) {
+	session(s, {autoupdate=false}={}) {
 		return new Session(s, {protocol: this.protocol, host: this.host, port: this.port, ua: this.ua, autoupdate})
 	}
 
@@ -224,12 +224,12 @@ class Session extends Client {
 		return this.get(`${this.path}/statements`).then(r=>r.statements ? r.statements.map(s=>this.statement(s, {autoupdate: false})) : r)
 	}
 
-	async run(code, {autoupdate=true}={}) {
+	async run(code, {autoupdate=false}={}) {
 		const res = await this.post(`${this.path}/statements`, {code})
 		return this.statement(res, {autoupdate})
 	}
 
-	statement(s, {autoupdate=true}={}) {
+	statement(s, {autoupdate=false}={}) {
 		return new Statement(s, this.o, {protocol: this.protocol, host: this.host, port: this.port, ua: this.ua, autoupdate})
 	}
 

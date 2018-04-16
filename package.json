@@ -1,7 +1,7 @@
 {
   "name": "livy-client",
-  "version": "0.0.8",
-  "description": "Simple REST clien for Apache Livy",
+  "version": "0.0.9",
+  "description": "Simple REST client for Apache Livy",
   "main": "main.js",
   "scripts": {
     "start": "node main.js"
