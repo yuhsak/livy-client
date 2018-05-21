@@ -90,7 +90,7 @@ class Client extends EventEmitter {
 	}
 
 	async update() {
-		this.path && this.status({auto: true}).then(this.updateState.bind(this))
+		this.path && this.status().then(this.updateState.bind(this))
 		this.autoupdate && sleep(this.updateInterval).then(this.update.bind(this))
 		return this
 	}
