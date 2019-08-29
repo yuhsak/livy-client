@@ -9,8 +9,8 @@
   "author": "Yuhsak Inoue",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.17.1",
-    "eventemitter3": "^3.0.0"
+    "axios": "^0.19.0",
+    "eventemitter3": "^4.0.0"
   },
   "repository": {
     "type": "git",
