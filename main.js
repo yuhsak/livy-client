@@ -25,15 +25,6 @@ class Client extends EventEmitter {
 	}
 
 	validateResponse(resolve, reject) {
-		// return res => {
-		// 	if (res.status > 400){
-		// 		console.log(res.data)
-		// 	}
-		// 	if(!res.data){
-		// 		console.log(res.status)
-		// 	}
-		// 	res.status > 400 ? reject(res) : resolve(res.data)
-		// }
 		return res => res.status > 400 ? reject(res) : resolve(res.data||{})
 	}
 

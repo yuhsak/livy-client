@@ -1,0 +1,22 @@
+version: '3'
+services:
+  master:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: spark-livy:2.4.3
+    ports:
+      - 4040:4040
+      - 8080:8080
+      - 8998:8998
+    command: bash -c "/livy/bin/livy-server start && /spark/bin/spark-class org.apache.spark.deploy.master.Master --host 0.0.0.0"
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: spark-livy:2.4.3
+    depends_on:
+      - master
+    ports:
+      - 8081-8089:8081
+    command: /spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077 --host 0.0.0.0
