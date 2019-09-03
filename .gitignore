@@ -1,11 +1,13 @@
+test.js
+test.ts
+lib/
+
 # Logs
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-test.js
-test.ts
 
 # Runtime data
 pids
