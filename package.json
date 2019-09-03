@@ -4,9 +4,15 @@
   "description": "Simple REST client for Apache Livy",
   "main": "main.js",
   "types": "lib/livy-client.d.ts",
+  "files": [
+    "lib",
+    "*.d.ts",
+    "package-lock.json"
+  ],
   "scripts": {
     "build": "tsc --watch",
-    "livy-server": "docker-compose up -d"
+    "livy-server": "docker-compose up -d",
+    "prepublishOnly": "tsc"
   },
   "author": "Yuhsak Inoue",
   "license": "MIT",
