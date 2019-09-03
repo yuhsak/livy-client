@@ -1,6 +1,6 @@
 # Livy Client
 
-Simple REST clien for Apache Livy
+Simple event driven REST client for Apache Livy
 
 ## Installation
 
@@ -30,7 +30,7 @@ const start = async () => {
 
 	// Create session
 	const newSession = await livy.createSession({
-		kind: 'pyspark3',
+		kind: 'pyspark',
 		numExecutors: 4
 	})
 
@@ -41,7 +41,7 @@ const start = async () => {
 		})
 		// Once ready, execute a code and kill the session
 		.once('idle', async status => {
-			const statement = await newSession.run('from time import sleep; sleep(5); print(spark)')
+			const statement = await newSession.run({code: 'from time import sleep; sleep(5); print(spark)'})
 			statement
 				.on('running', status => {
 					console.log(`Statement running... ${Math.round(status.progress*100)}/100%`)
@@ -63,13 +63,14 @@ start()
 
 #### Events
 - `update`
-- `error`
+- `requestError`
 
 #### Methods
 - `sessions()`
 - `createSession()`
 - `stopUpdate()`
 - `startUpdate()`
+- `Batch()`
 
 ```js
 // Constructor
@@ -77,8 +78,6 @@ const livy = new LivyClient({
 	protocol: 'http',
 	host: 'localhost',
 	port: 8998,
-	ua: 'Livy Client for Node.js',
-	autoupdate: true,
 	updateInterval: 1000
 })
 
@@ -100,14 +99,16 @@ const newSession = await livy.createSession({ 	// Session instance
 	queue,
 	name,
 	conf,
-	heartbeatTimeoutInSecond,
-	autoupdate
+	heartbeatTimeoutInSecond
 })
+
+const Batch = livy.Batch()
 ```
 
 ### Class: Session
 
 #### Events
+- `update`
 - `not_started`
 - `starting`
 - `idle`
@@ -133,12 +134,12 @@ const session = await livy.createSession({kind: 'pyspark3', numExecutors: 4})
 // Methods
 session.once('idle', async stat => {
 
-	const status = await session.status() 						// status object
-	const state = await session.state() 						// state object
-	const log = await session.log() 							// array of logs
-	const statements = await session.statements()				// array of Statement instances
-	const run = await session.run('print("Hello, World!!")') 	// Statement instance
-	const kill = await session.kill()							// result object
+	const status = await session.status()	// status object
+	const state = await session.state()	// state object
+	const log = await session.log()	// array of logs
+	const statements = await session.statements()	// array of Statement instances
+	const run = await session.run({code: 'print("Hello, World!!")'})	// Statement instance
+	const kill = await session.kill()	// result object
 
 })
 ```
@@ -146,6 +147,7 @@ session.once('idle', async stat => {
 ### Class: Statement
 
 #### Events
+-	`update`
 - `waiting`
 - `running`
 - `available`
@@ -164,7 +166,7 @@ session.once('idle', async stat => {
 - `startUpdate()`
 
 ```js
-const statement = await session.run('print("Hello, World!!")')
+const statement = await session.run({code: 'print("Hello, World!!")'})
 
 // Methods
 statement.once('running', async status => {
@@ -176,3 +178,36 @@ statement.once('running', async status => {
 	console.log(res)
 })
 ```
+
+### Class: Batch
+
+#### Events
+- `update`
+- `requestError`
+
+#### Methods
+- `sessions()`
+- `createSession()`
+- `stopUpdate()`
+- `startUpdate()`
+
+### Class: BatchSession
+
+#### Events
+- `update`
+- `not_started`
+- `starting`
+- `idle`
+- `busy`
+- `shutting_down`
+- `error`
+- `dead`
+- `success`
+
+#### Methods
+- `status()`
+- `state()`
+- `log()`
+- `kill()`
+- `stopUpdate()`
+- `startUpdate()`

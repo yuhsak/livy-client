@@ -42,7 +42,7 @@ export default class Statement extends Stateful<LivyStatement, LivyStatementAvai
 	constructor(s: LivyStatement, session: LivySession, arg: ClientConstructorArguments) {
 		super(s, arg)
 		this.sessionId = session.id
-		this.path = `${this.path}/statements/${this.id}`
+		this.path = `/sessions/${this.sessionId}/statements/${this.id}`
 	}
 
 	async cancel():Promise<{msg: string}> {
