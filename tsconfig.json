@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+		"moduleResolution": "node",
+    "strict": true,
+		"rootDir": "src",
+    "outDir": "lib",
+    "esModuleInterop": true,
+		"lib": ["dom", "esnext"],
+		"declaration": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src"]
+}

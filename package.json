@@ -3,6 +3,7 @@
   "version": "0.0.10",
   "description": "Simple REST client for Apache Livy",
   "main": "main.js",
+  "types": "lib/livy-client.d.ts",
   "scripts": {
     "start": "node main.js"
   },
@@ -23,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/Yuhsak/livy-client/issues"
   },
-  "homepage": "https://github.com/Yuhsak/livy-client#readme"
+  "homepage": "https://github.com/Yuhsak/livy-client#readme",
+  "devDependencies": {
+    "typescript": "^3.6.2"
+  }
 }
