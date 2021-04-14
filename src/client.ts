@@ -50,7 +50,6 @@ export default class Client<ObjectType=any> extends EventEmitter {
 			responseType: 'json',
 			timeout: 10*1000
 		}, ...(headers?{headers}:{})})
-		this.path = '/'
 		this.o = <any>{}
 		this.autoupdate && this.update()
 		this.on('requestError', e=>this.emit('error', e))

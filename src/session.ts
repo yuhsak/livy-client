@@ -83,13 +83,13 @@ export default class Session extends Stateful<LivySession, LivySessionAvailabili
 		return this.get(`${this.path}/statements`).then(r=>r.statements ? r.statements.map((s:LivyStatement)=>this.Statement(s, {autoupdate: false})) : [])
 	}
 
-	async run(param: {code: string, kind?: LivySessionKind}, {autoupdate=true}:{autoupdate?: boolean}={}) {
+	async run(param: {code: string, kind?: LivySessionKind}, {autoupdate=true,updateInterval=1000}:{autoupdate?: boolean,updateInterval?:number}={}) {
 		const res = await this.post(`${this.path}/statements`, param)
-		return this.Statement(res, {autoupdate})
+		return this.Statement(res, {autoupdate,updateInterval})
 	}
 
-	Statement(s:LivyStatement, {autoupdate=true}={}) {
-		return new Statement(s, this.o, {protocol: this.protocol, host: this.host, port: this.port, headers: this.headers, autoupdate})
+	Statement(s:LivyStatement, {autoupdate=true, updateInterval=1000}={}) {
+		return new Statement(s, this.o, {protocol: this.protocol, host: this.host, port: this.port, headers: this.headers, autoupdate, updateInterval})
 	}
 
 }
