@@ -51,6 +51,7 @@ export default class Client<ObjectType=any> extends EventEmitter {
 			timeout: 10*1000
 		}, ...(headers?{headers}:{})})
 		this.o = <any>{}
+		this.path = ""
 		this.autoupdate && this.update()
 		this.on('requestError', e=>this.emit('error', e))
 	}
@@ -110,7 +111,7 @@ export default class Client<ObjectType=any> extends EventEmitter {
 	}
 
 	async update() {
-		this.path && this.status().then(this.updateState.bind(this)).catch(()=>{})
+		this.path && this.path!="" && this.status().then(this.updateState.bind(this)).catch(()=>{})
 		this.autoupdate && sleep(this.updateInterval).then(this.update.bind(this))
 		return this
 	}
