@@ -44,7 +44,7 @@ export default class Batch extends Client<BatchSession[]> {
 	}
 
 	Session(s:LivyBatchSession, {autoupdate=true}:{autoupdate?:boolean}={}) {
-		return new BatchSession(s, {protocol: this.protocol, host: this.host, port: this.port, headers: this.headers, autoupdate})
+		return new BatchSession(s, {protocol: this.protocol, host: this.host, port: this.port, pathPrefix: this.pathPrefix, headers: this.headers, autoupdate})
 	}
 
 	cleanup() {
