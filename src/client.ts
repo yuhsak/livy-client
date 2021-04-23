@@ -19,6 +19,7 @@ export type ClientConstructorArguments = {
 	protocol?: string
 	host?: string
 	port?: string|number
+	pathPrefix?: string
 	autoupdate?: boolean
 	updateInterval?: number
 	headers?: any,
@@ -34,6 +35,7 @@ export default class Client<ObjectType=any> extends EventEmitter {
 	public updateInterval: number
 	public agent: AxiosInstance
 	public path: string
+	public pathPrefix: string
 	protected headers?: any
 	protected o:ObjectType
 
@@ -52,6 +54,7 @@ export default class Client<ObjectType=any> extends EventEmitter {
 		}, ...(headers?{headers}:{})})
 		this.o = <any>{}
 		this.path = ""
+		this.pathPrefix = ""
 		this.autoupdate && this.update()
 		this.on('requestError', e=>this.emit('error', e))
 	}
@@ -89,7 +92,7 @@ export default class Client<ObjectType=any> extends EventEmitter {
 	private async request(method:Method='get', path:string, data?:any) {
 		const opt = Object.assign({
 			method,
-			url: path
+			url: this.pathPrefix + path
 		}, data?{data}:{})
 		return new Promise<AxiosResponse['data']>((resolve, reject)=>
 			this.agent.request(opt)
