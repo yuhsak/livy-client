@@ -17,8 +17,8 @@ export type RequestError = {
 
 export type ClientConstructorArguments = {
 	protocol?: string
-	host?: string
-	port?: string|number
+	host?: string | null
+	port?: string|number|null
 	pathPrefix?: string
 	autoupdate?: boolean
 	updateInterval?: number
