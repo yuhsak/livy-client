@@ -29,8 +29,9 @@ export type ClientConstructorArguments = {
 export default class Client<ObjectType=any> extends EventEmitter {
 
 	public protocol: string
-	public host: string
-	public port: string|number
+	public host: string|null
+	public pathPrefix: string
+	public port: string|number|null
 	public autoupdate: boolean
 	public updateInterval: number
 	public agent: AxiosInstance
@@ -47,8 +48,9 @@ export default class Client<ObjectType=any> extends EventEmitter {
 		this.updateInterval = updateInterval
 		this.headers = headers
 		let baseURL = ""
+		this.pathPrefix = pathPrefix
 		if (port && host) baseURL = `${this.protocol}://${this.host}:${this.port}`
-		baseURL += pathPrefix;
+		baseURL += this.pathPrefix;
 		this.agent = agent || Axios.create({...{
 			baseURL: baseURL,
 			responseType: 'json',
