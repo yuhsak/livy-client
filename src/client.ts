@@ -35,11 +35,10 @@ export default class Client<ObjectType=any> extends EventEmitter {
 	public updateInterval: number
 	public agent: AxiosInstance
 	public path: string
-	public pathPrefix: string
 	protected headers?: any
 	protected o:ObjectType
 
-	constructor({protocol='http', host='localhost', port=8998, autoupdate=false, updateInterval=1000, headers, agent}:ClientConstructorArguments={}) {
+	constructor({protocol='http', host='localhost', port=8998, autoupdate=false, updateInterval=1000, pathPrefix="",headers, agent}:ClientConstructorArguments={}) {
 		super()
 		this.protocol = protocol
 		this.host = host
@@ -47,14 +46,16 @@ export default class Client<ObjectType=any> extends EventEmitter {
 		this.autoupdate = autoupdate
 		this.updateInterval = updateInterval
 		this.headers = headers
+		let baseURL = ""
+		if (port && host) baseURL = `${this.protocol}://${this.host}:${this.port}`
+		baseURL += pathPrefix;
 		this.agent = agent || Axios.create({...{
-			baseURL: `${this.protocol}://${this.host}:${this.port}`,
+			baseURL: baseURL,
 			responseType: 'json',
 			timeout: 10*1000
 		}, ...(headers?{headers}:{})})
 		this.o = <any>{}
 		this.path = ""
-		this.pathPrefix = ""
 		this.autoupdate && this.update()
 		this.on('requestError', e=>this.emit('error', e))
 	}
@@ -92,7 +93,7 @@ export default class Client<ObjectType=any> extends EventEmitter {
 	private async request(method:Method='get', path:string, data?:any) {
 		const opt = Object.assign({
 			method,
-			url: this.pathPrefix + path
+			url: path
 		}, data?{data}:{})
 		return new Promise<AxiosResponse['data']>((resolve, reject)=>
 			this.agent.request(opt)
