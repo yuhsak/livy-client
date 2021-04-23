@@ -89,7 +89,7 @@ export default class Session extends Stateful<LivySession, LivySessionAvailabili
 	}
 
 	Statement(s:LivyStatement, {autoupdate=true, updateInterval=1000}={}) {
-		return new Statement(s, this.o, {protocol: this.protocol, host: this.host, port: this.port, headers: this.headers, autoupdate, updateInterval})
+		return new Statement(s, this.o, {protocol: this.protocol, host: this.host, port: this.port, pathPrefix: this.pathPrefix, headers: this.headers, autoupdate, updateInterval})
 	}
 
 }
