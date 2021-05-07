@@ -44,11 +44,11 @@ export default class LivyClient extends Client<Session[]> {
 	}
 
 	Session(s:LivySession, {autoupdate=true}:{autoupdate?:boolean}={}) {
-		return new Session(s, {protocol: this.protocol, host: this.host, port: this.port, headers: this.headers, autoupdate})
+		return new Session(s, {protocol: this.protocol, host: this.host, port: this.port, pathPrefix: this.pathPrefix, headers: this.headers, autoupdate})
 	}
 
 	Batch({autoupdate=false}:{autoupdate?: boolean}={}) {
-		return new Batch({protocol: this.protocol, host: this.host, port: this.port, headers: this.headers, autoupdate})
+		return new Batch({protocol: this.protocol, host: this.host, port: this.port, pathPrefix: this.pathPrefix, headers: this.headers, autoupdate})
 	}
 
 	cleanup() {

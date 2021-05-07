@@ -17,8 +17,9 @@ export type RequestError = {
 
 export type ClientConstructorArguments = {
 	protocol?: string
-	host?: string
-	port?: string|number
+	host?: string | null
+	port?: string|number|null
+	pathPrefix?: string
 	autoupdate?: boolean
 	updateInterval?: number
 	headers?: any,
@@ -28,8 +29,9 @@ export type ClientConstructorArguments = {
 export default class Client<ObjectType=any> extends EventEmitter {
 
 	public protocol: string
-	public host: string
-	public port: string|number
+	public host: string|null
+	public pathPrefix: string
+	public port: string|number|null
 	public autoupdate: boolean
 	public updateInterval: number
 	public agent: AxiosInstance
@@ -37,7 +39,7 @@ export default class Client<ObjectType=any> extends EventEmitter {
 	protected headers?: any
 	protected o:ObjectType
 
-	constructor({protocol='http', host='localhost', port=8998, autoupdate=false, updateInterval=1000, headers, agent}:ClientConstructorArguments={}) {
+	constructor({protocol='http', host='localhost', port=8998, autoupdate=false, updateInterval=1000, pathPrefix="",headers, agent}:ClientConstructorArguments={}) {
 		super()
 		this.protocol = protocol
 		this.host = host
@@ -45,13 +47,17 @@ export default class Client<ObjectType=any> extends EventEmitter {
 		this.autoupdate = autoupdate
 		this.updateInterval = updateInterval
 		this.headers = headers
+		let baseURL = ""
+		this.pathPrefix = pathPrefix
+		if (port && host) baseURL = `${this.protocol}://${this.host}:${this.port}`
+		baseURL += this.pathPrefix;
 		this.agent = agent || Axios.create({...{
-			baseURL: `${this.protocol}://${this.host}:${this.port}`,
+			baseURL: baseURL,
 			responseType: 'json',
 			timeout: 10*1000
 		}, ...(headers?{headers}:{})})
-		this.path = '/'
 		this.o = <any>{}
+		this.path = ""
 		this.autoupdate && this.update()
 		this.on('requestError', e=>this.emit('error', e))
 	}
@@ -111,7 +117,7 @@ export default class Client<ObjectType=any> extends EventEmitter {
 	}
 
 	async update() {
-		this.path && this.status().then(this.updateState.bind(this)).catch(()=>{})
+		this.path && this.path!="" && this.status().then(this.updateState.bind(this)).catch(()=>{})
 		this.autoupdate && sleep(this.updateInterval).then(this.update.bind(this))
 		return this
 	}

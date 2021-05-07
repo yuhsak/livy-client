@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc --watch",
     "livy-server": "docker-compose up -d",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc",
+    "postinstall": "tsc --outDir ./lib"
   },
   "author": "Yuhsak Inoue",
   "license": "MIT",
