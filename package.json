@@ -1,6 +1,6 @@
 {
   "name": "livy-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple REST client for Apache Livy",
   "main": "main.js",
   "types": "lib/livy-client.d.ts",
@@ -12,8 +12,7 @@
   "scripts": {
     "build": "tsc --watch",
     "livy-server": "docker-compose up -d",
-    "prepublishOnly": "tsc",
-    "postinstall": "tsc --outDir ./lib"
+    "prepublishOnly": "tsc"
   },
   "author": "Yuhsak Inoue",
   "license": "MIT",
